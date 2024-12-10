@@ -35,15 +35,15 @@ function verificarAutenticacao(req, resp, next) {
     if (req.session.usuarioLogado) {
         next();
     } else {
-        resp.redirect('/login.html');
+        resp.redirect('/login');
     }
 }
 
 app.get('/login', (req, resp) => {
     if (req.session.usuarioLogado) {
-        return resp.redirect('/menu');
+        resp.redirect('/menu');
     } else {
-        resp.redirect('/login.html');  
+        resp.send(`...pagina de login aqui...`);
     }
 });
 
@@ -70,7 +70,6 @@ app.get('/menu', verificarAutenticacao, (req, resp) => {
     if (!dataHoraUltimoLogin) {
         dataHoraUltimoLogin = '';
     }
-    resp.sendFile(path.join(process.cwd(), 'pages/public', 'menu.html'));
     resp.send(`
         <!DOCTYPE html>
         <html lang="pt-br">
