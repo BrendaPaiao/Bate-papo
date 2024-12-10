@@ -41,7 +41,7 @@ function verificarAutenticacao(req, resp, next) {
 
 app.get('/login', (req, resp) => {
     if (req.session.usuarioLogado) {
-        resp.redirect('/menu');
+        resp.redirect('/menu.html');
     } else {
         resp.send(`...pagina de login aqui...`);
     }
@@ -52,7 +52,7 @@ app.post('/login', (req, resp) => {
     if (admin.nome === nome && admin.senha === senha) {
         req.session.usuarioLogado = admin.nome;
         resp.cookie('dataHoraUltimoLogin', new Date().toISOString(), { maxAge: 1000 * 60 * 30 });
-        resp.redirect('/menu');
+        resp.redirect('/menu.html');
     } else {
         resp.send(`
             <p>Credenciais inválidas. <a href="/login">Tente novamente</a>.</p>
