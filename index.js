@@ -35,7 +35,7 @@ function verificarAutenticacao(req, resp, next) {
     if (req.session.usuarioLogado) {
         next();
     } else {
-        resp.redirect('/login');
+        resp.redirect('/login.html');
     }
 }
 
@@ -43,7 +43,7 @@ app.get('/login', (req, resp) => {
     if (req.session.usuarioLogado) {
         return resp.redirect('/menu');
     } else {
-        return resp.sendFile(path.join(process.cwd(), 'pages/public', 'login.html'));  
+        resp.redirect('/login.html');  
     }
 });
 
