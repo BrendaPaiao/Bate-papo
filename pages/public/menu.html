@@ -1,0 +1,32 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu</title>
+    <link rel="stylesheet" href="styles/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+<body>
+    <div class="container text-center mt-5">
+        <h1 class="mb-4">Bem-vindo ao Menu</h1>
+        <p>Você está logado como: <strong id="username"></strong></p>
+
+        <div class="d-grid gap-2 col-6 mx-auto mt-4">
+            <a href="/cadastrarUsuario" class="btn btn-primary" role="button">Cadastro de Usuários</a>
+            <a href="/chat" class="btn btn-primary" role="button">Ir para o Chat</a>
+            <a href="/logout" class="btn btn-primary" role="button">Sair</a>
+        </div>
+
+        <p class="nav-link disable" tabindex="-1" aria-disabled="true">Seu último acesso foi realizado em ${dataHoraUltimoLogin}</p>
+    </div>
+
+    <script>
+        // Definindo o nome do usuário no HTML usando JavaScript
+        const username = "${req.session.usuarioLogado}";
+        document.getElementById('username').textContent = username;
+    </script>
+</body>
+</html>
