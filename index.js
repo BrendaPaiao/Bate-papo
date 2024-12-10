@@ -41,9 +41,9 @@ function verificarAutenticacao(req, resp, next) {
 
 app.get('/login', (req, resp) => {
     if (req.session.usuarioLogado) {
-        resp.redirect('/menu');
+        return resp.redirect('/menu');
     } else {
-        resp.redirect('login.html'); 
+        return resp.sendFile(path.join(process.cwd(), 'pages/public', 'login.html'));  
     }
 });
 
@@ -51,7 +51,7 @@ app.post('/login', (req, resp) => {
     const { nome, senha } = req.body;
     if (admin.nome === nome && admin.senha === senha) {
         req.session.usuarioLogado = admin.nome;
-        res.cookie('dataHoraUltimoLogin', new Date().toISOString(), { maxAge: 1000 * 60 * 30 });
+        resp.cookie('dataHoraUltimoLogin', new Date().toISOString(), { maxAge: 1000 * 60 * 30 });
         resp.redirect('/menu');
     } else {
         resp.send(`
@@ -310,9 +310,4 @@ app.get('/mensagens', verificarAutenticacao, (req, resp) => {
 
 app.listen(porta, host, () => {
     console.log(`Servidor rodando em http://${host}:${porta}`);
-});
-
-app.use((err, req, resp, next) => {
-    console.error(err.stack);
-    resp.status(500).send('Algo deu errado!');
 });
