@@ -70,6 +70,7 @@ app.get('/menu', verificarAutenticacao, (req, resp) => {
     if (!dataHoraUltimoLogin) {
         dataHoraUltimoLogin = '';
     }
+    resp.sendFile(path.join(process.cwd(), 'pages/public', 'menu.html'));
     resp.send(`
         <!DOCTYPE html>
         <html lang="pt-br">
@@ -275,7 +276,7 @@ app.post('/enviarMensagem', verificarAutenticacao, (req, resp) => {
     const usuarioRemetente = req.session.usuarioLogado;
 
     if (mensagem && usuarioRemetente) {
-        //conteúdo da mensagem que será enviada no bate-papo
+        //Conteúdo da mensagem que será enviada no bate-papo
         const novaMensagem = {
             usuario: usuarioRemetente.nickname,
             mensagem: mensagem,
