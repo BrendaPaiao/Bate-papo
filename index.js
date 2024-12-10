@@ -311,3 +311,8 @@ app.get('/mensagens', verificarAutenticacao, (req, resp) => {
 app.listen(porta, host, () => {
     console.log(`Servidor rodando em http://${host}:${porta}`);
 });
+
+app.use((err, req, resp, next) => {
+    console.error(err.stack);
+    resp.status(500).send('Algo deu errado!');
+});
