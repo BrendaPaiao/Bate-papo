@@ -20,8 +20,6 @@ app.use(cookieParser());
 app.use(express.urlencoded({extended: true}));
 
 app.use(express.static(path.join(process.cwd(), 'pages/public')));
-app.use(express.static(path.join(process.cwd(), 'pages/private')));
-
 
 const porta = 3000;
 const host = '0.0.0.0';
