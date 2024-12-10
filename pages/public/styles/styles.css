@@ -196,3 +196,7 @@ td {
         font-size: 0.9rem;
     }
 }
+
+.input-erro {
+    border: 2px solid red;
+}

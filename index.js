@@ -20,11 +20,15 @@ app.use(cookieParser());
 app.use(express.urlencoded({extended: true}));
 
 app.use(express.static(path.join(process.cwd(), 'pages/public')));
+app.use(express.static(path.join(process.cwd(), 'pages/private')));
+
 
 const porta = 3000;
 const host = '0.0.0.0';
 
-const usuarios = [];
+const admin = {nome: 'Admin', senha: '1234'};
+
+var usuarios = [];
 const mensagens = [];
 
 function verificarAutenticacao(req, resp, next) {
@@ -44,11 +48,10 @@ app.get('/login', (req, resp) => {
 });
 
 app.post('/login', (req, resp) => {
-    const { username, password } = req.body;
-    const usuario = usuarios.find(u => u.nome === username);
+    const { nome, senha } = req.body;
     
-    if (usuario && usuario.senha === password) {
-        req.session.usuarioLogado = usuario.nome;
+    if (admin.nome === nome && admin.senha === senha) {
+        req.session.usuarioLogado = admin.nome;
         resp.redirect('/menu');
     } else {
         resp.send(`
@@ -63,6 +66,10 @@ app.get('/logout', (req, resp) => {
 });
 
 app.get('/menu', verificarAutenticacao, (req, resp) => {
+    const dataHoraUltimoLogin = req.cookies['dataHoraUltimoLogin'];
+    if (!dataHoraUltimoLogin) {
+        dataHoraUltimoLogin = '';
+    }
     resp.send(`
         <!DOCTYPE html>
         <html lang="pt-br">
@@ -70,7 +77,7 @@ app.get('/menu', verificarAutenticacao, (req, resp) => {
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Menu</title>
-            <link rel="stylesheet" href="/css/style.css">
+            <link rel="stylesheet" href="styles/styles.css">
             <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
             integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
         </head>
@@ -78,6 +85,7 @@ app.get('/menu', verificarAutenticacao, (req, resp) => {
             <h1>Bem-vindo ao Menu</h1>
             <p>Você está logado como: <strong id="username"></strong></p>
             <p><a href="/logout">Sair</a></p>
+            <p><a href="/cadastrarUsuario">Cadastro de Usuários</a></p>
             <p><a href="/chat">Ir para o Chat</a></p>
 
             <script>
@@ -85,100 +93,211 @@ app.get('/menu', verificarAutenticacao, (req, resp) => {
                 const username = "${req.session.usuarioLogado}";
                 document.getElementById('username').textContent = username;
             </script>
+            <p class="nav-link disable" tabindex="-1" aria-disabled="true">Seu último acesso foi realizado em ${dataHoraUltimoLogin}</p>
         </body>
         </html>
     `);
 });
 
-app.get('/cadastrarUsuario', (req, resp) => {
-    resp.redirect('cadastro.html'); 
-});
+function cadastroUsuario(req, resp) {
+    resp.send(`
+        <!DOCTYPE html>
+        <html lang="pt-br">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Cadastro de Usuário</title>
+            <link rel="stylesheet" href="styles/styles.css">
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+            integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        </head>
+        <body>
+            <h1>Cadastro de Usuário</h1>
+            <form action="/cadastrarUsuario" method="POST" autocomplete="on">
+                <div class="mb-3">
+                    <label for="nome" class="form-label">Nome</label>
+                    <input type="text" id="nome" name="nome" placeholder="Nome" class="form-control" autocomplete="name">
+                </div>
+                <div class="mb-3">
+                    <label for="dataNascimento" class="form-label">Data de Nascimento</label>
+                    <input type="date" id="dataNascimento" name="dataNascimento" placeholder="Data de Nascimento" class="form-control" autocomplete="bday">
+                </div>
+                <div class="mb-3">
+                    <label for="nickname" class="form-label">Nickname</label>
+                    <input type="text" id="nickname" name="nickname" placeholder="Nickname" class="form-control" autocomplete="username">
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" id="email" name="email" placeholder="Email" class="form-control" autocomplete="email">
+                </div>
+                <div class="mb-3">
+                    <label for="senha" class="form-label">Senha</label>
+                    <input type="password" id="senha" name="senha" placeholder="Senha" class="form-control" autocomplete="new-password">
+                </div>
+                <div class="mb-3">
+                    <label for="confirmarSenha" class="form-label">Confirmar Senha</label>
+                    <input type="password" id="confirmarSenha" name="confirmarSenha" placeholder="Confirmar Senha" class="form-control" autocomplete="new-password">
+                </div>
+                <button type="submit" class="btn btn-primary">Cadastrar</button>
+            </form>
+            <a href="/menu">Voltar</a>
+        </body>
+        </html>`);
+}
 
-app.post('/cadastrarUsuario', (req, res) => {
-    const { nome, dataNascimento, nickname, email, senha, confirmarSenha } = req.body;
+function cadastrarUsuarios(req, resp) {
 
-    console.log('Dados recebidos:', req.body);
+    const nome = req.body.nome;
+    const dataNascimento = req.body.dataNascimento;
+    const nickname = req.body.nickname;
+    const email = req.body.email;
+    const senha = req.body.senha;
 
-    if (!nome || !dataNascimento || !nickname || !senha || !confirmarSenha || !email) {
-        return res.status(400).send('Todos os campos são obrigatórios.');
-    }
+    if(nome && dataNascimento && nickname && email && senha){
 
-    if (senha !== confirmarSenha) {
-        return res.status(400).send('As senhas não coincidem.');
-    }
+        const usuario = {nome, dataNascimento, nickname, email, senha};
 
-    const usuarioExistenteEmail = usuarios.find(usuario => usuario.email === email);
-    if (usuarioExistenteEmail) {
-        return res.status(400).send('Este email já está em uso.');
-    }
+        usuarios.push(usuario);
 
-    const usuarioExistenteNickname = usuarios.find(usuario => usuario.nickname === nickname);
-    if (usuarioExistenteNickname) {
-        return res.status(400).send('Este nickname já está em uso.');
-    }
-
-    if (senha.length < 6) {
-        return res.status(400).send('A senha deve ter no mínimo 6 caracteres.');
-    }
-
-    usuarios.push({ nome, dataNascimento, nickname, email, senha });
-
-    res.redirect('/login');
-});
-
-app.get('/listarUsuarios', verificarAutenticacao, (req, resp) => {
-    resp.write(`
-        <html>
+        resp.write(`
+            <!DOCTYPE html>
+            <html lang="pt-br">
             <head>
-                <title>Lista de Usuários</title>
-                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-                <meta charset="utf-8">
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Cadastro de Usuário</title>
+                <link rel="stylesheet" href="styles/styles.css">
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+                integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
             </head>
             <body>
                 <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th scope="col">Nome</th>
-                            <th scope="col">Nickname</th>
-                            <th scope="col">Email</th>
-                        </tr>
-                    </thead>
-                    <tbody>`);
-    
-    for (const usuario of usuarios) {
-        resp.write(`
-            <tr>
-                <td>${usuario.nome}</td>
-                <td>${usuario.nickname}</td>
-                <td>${usuario.email}</td>
-            </tr>
-        `);
+                        <thead>
+                            <tr>
+                                <th scope="col">Nome</th>
+                                <th scope="col">Data de Nascimento</th>
+                                <th scope="col">Nickname</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Senha</th>
+                            </tr>
+                        </thead>
+                        <tbody>`);
+
+                        for(var i = 0; i < usuarios.length; i++){
+                                resp.write(`<tr>
+                                                <td>${usuarios[i].nome}</td>
+                                                <td>${usuarios[i].dataNascimento}</td>
+                                                <td>${usuarios[i].nickname}</td>
+                                                <td>${usuarios[i].email}</td>
+                                                <td>${usuarios[i].senha}</td>
+                                            </tr>
+                                    `);
+                            }
+            resp.write(` </tbody>
+                            </table>
+                                <div class="container-actions">
+                                    <a class="btn btn-primary" href="/cadastrar" role="button">Cadastrar Outro Usuário</a>
+                                    <a class="btn btn-primary" href="/menu" role="button">Voltar ao Menu</a>
+                                </div>
+                            </div>
+                        </body>
+                        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+                    </html>
+                `);
     }
-
-    resp.write(`</tbody>
-                </table>
-                <a class="btn btn-secondary" href="/menu">Voltar para o Menu</a>
-            </body>
-        </html>`);
+    else {
+        resp.write(`
+                <!DOCTYPE html>
+                <html lang="pt-br">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Cadastro de Usuário</title>
+                    <link rel="stylesheet" href="styles/styles.css">
+                    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+                    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+                </head>
+                <body>
+                    <h1>Cadastro de Usuário</h1>
+                    <form action="/cadastrarUsuario" method="POST" autocomplete="on">
+                        <div class="mb-3">
+                            <label for="nome" class="form-label">Nome</label>
+                            <input type="text" id="nome" name="nome" placeholder="Nome" required class="form-control" autocomplete="name">
+                            ${!nome ? '<span><p class="text-danger">Por favor, informe o nome do usuário.</p></span>' : ''}
+                        </div>
+                        <div class="mb-3">
+                            <label for="dataNascimento" class="form-label">Data de Nascimento</label>
+                            <input type="date" id="dataNascimento" name="dataNascimento" placeholder="Data de Nascimento" required class="form-control" autocomplete="bday">
+                            ${!dataNascimento ? '<span><p class="text-danger">Por favor, informe a data de nascimento do usuário.</p></span>' : ''}
+                        </div>
+                        <div class="mb-3">
+                            <label for="nickname" class="form-label">Nickname</label>
+                            <input type="text" id="nickname" name="nickname" placeholder="Nickname" required class="form-control" autocomplete="username">
+                            ${!nickname ? '<span><p class="text-danger">Por favor, informe o nickname do usuário.</p></span>' : ''}
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" id="email" name="email" placeholder="Email" required class="form-control" autocomplete="email">
+                            ${!email ? '<span><p class="text-danger">Por favor, informe o email do usuário.</p></span>' : ''}
+                        </div>
+                        <div class="mb-3">
+                            <label for="senha" class="form-label">Senha</label>
+                            <input type="password" id="senha" name="senha" placeholder="Senha" required class="form-control" autocomplete="new-password">
+                            ${!senha ? '<span><p class="text-danger">Por favor, informe a senha do usuário.</p></span>' : ''}
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmarSenha" class="form-label">Confirmar Senha</label>
+                            <input type="password" id="confirmarSenha" name="confirmarSenha" placeholder="Confirmar Senha" required class="form-control" autocomplete="new-password">
+                            ${!confirmarSenha ? '<span><p class="text-danger">Por favor, confirme a senha do usuário.</p></span>' : ''}
+                        </div>
+                        <button type="submit" class="btn btn-primary">Cadastrar</button>
+                    </form>
+                    <a href="/menu">Voltar</a>
+                </body>
+                </html> `);
+    }
     resp.end();
+}
+
+app.get('/cadastrarUsuario', verificarAutenticacao, cadastroUsuario);
+
+app.post('/cadastrarUsuario', verificarAutenticacao, cadastrarUsuarios);
+
+app.post('/enviarMensagem', verificarAutenticacao, (req, resp) => {
+    const { mensagem, destinatario } = req.body;
+    const usuarioRemetente = req.session.usuarioLogado;
+
+    if (mensagem && destinatario) {
+        const novaMensagem = {
+            usuario: usuarioRemetente.nickname,
+            destinatario: destinatario,
+            mensagem: mensagem,
+            data: new Date().toLocaleString(),
+        };
+
+        mensagens.push(novaMensagem);
+
+        resp.json({ success: true });
+    } else {
+        resp.send('Por favor, preencha todos os campos.');
+    }
 });
 
-app.post('/enviarMensagem', verificarAutenticacao, (req, res) => {
-    const mensagem = {
-        usuario: req.session.usuarioLogado,
-        mensagem: req.body.mensagem,
-        data: new Date().toLocaleString('pt-BR')
-    };
-    mensagens.push(mensagem); 
-    res.redirect('/chat');
+app.get('/usuarios', (req, res) => {
+    const nicknames = usuarios.map(u => u.nickname);
+    res.json(nicknames);
 });
+
 
 app.get('/chat', verificarAutenticacao, (req, resp) => {
+    if (!req.session.usuarioLogado) {
+        return resp.send('<h1>Por favor, faça login para acessar o chat.</h1>');
+    }
     resp.redirect('/batePapo.html');
 });
 
-app.get('/mensagens', verificarAutenticacao, (req, res) => {
-    res.json(mensagens);
+app.get('/mensagens', verificarAutenticacao, (req, resp) => {
+    resp.json(mensagens);
 });
 
 app.listen(porta, host, () => {
