@@ -33,11 +33,12 @@ const mensagens = [];
 
 function verificarAutenticacao(req, resp, next) {
     if (req.session.usuarioLogado) {
-        next();
+      next();
     } else {
-        resp.redirect('/login');
+      console.log("Usuário não autenticado.");
+      next(); 
     }
-}
+  }
 
 app.get('/login', (req, resp) => {
     if (req.session.usuarioLogado) {
