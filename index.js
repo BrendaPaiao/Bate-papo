@@ -49,9 +49,9 @@ app.get('/login', (req, resp) => {
 
 app.post('/login', (req, resp) => {
     const { nome, senha } = req.body;
-    
     if (admin.nome === nome && admin.senha === senha) {
         req.session.usuarioLogado = admin.nome;
+        res.cookie('dataHoraUltimoLogin', new Date().toISOString(), { maxAge: 1000 * 60 * 30 });
         resp.redirect('/menu');
     } else {
         resp.send(`
