@@ -38,5 +38,25 @@
         <button type="submit" class="btn btn-primary">Cadastrar</button>
     </form>
     <a href="/menu">Voltar</a>
+    <script>
+        function verificarUsuarioExistente(nome, email) {
+            return usuarios.some(user => user.nome === nome || user.email === email);
+        }
+    
+        const cadastroForm = document.querySelector('form');
+        cadastroForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+            
+            const nome = document.getElementById('nome').value;
+            const email = document.getElementById('email').value;
+            
+            if (verificarUsuarioExistente(nome, email)) {
+                alert('Já existe um usuário com esse nome ou e-mail!');
+            } else {
+                alert('Usuário cadastrado com sucesso!');
+                cadastroForm.submit();
+            }
+        });
+    </script>
 </body>
 </html>

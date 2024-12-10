@@ -9,23 +9,28 @@
     integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
         </head>
         <body>
-            <h1>Bate-Papo</h1>
-            <div id="chat-container">
-                <div id="mensagens"></div>
-            </div>
-
-            <div id="message-input-container">
-                <div class="form-group">
-                    <p>Enviar Mensagem:</p>
+            <div class="container-fluid">
+                <h1 class="text-center my-4">Bate-Papo</h1>
+        
+                <div id="chat-container" class="mb-3">
+                    <div id="mensagens" class="mb-3"></div>
+                </div>
+        
+                <div id="message-input-container" class="d-flex flex-column">
+                <div class="form-group mb-2">
                     <label for="usuario-select">Usuário:</label>
                     <select id="usuario-select" class="form-control">
-                        <option value="">...</option>
+                        <option value="">Selecione um usuário</option>
                     </select>
                 </div>
-                <input type="text" id="message-input" placeholder="Digite sua mensagem" class="form-control mt-2">
-                <button id="send-button" class="btn btn-primary mt-2">Enviar</button>
+        
+                <div class="d-flex">
+                    <input type="text" id="message-input" class="form-control me-2" placeholder="Digite sua mensagem">
+                    <button id="send-button" class="btn btn-primary">Enviar</button>
+                </div>
             </div>
-            <p><a href="/menu">Voltar ao menu</a></p>
+        
+            <p class="mt-3 text-center"><a href="/menu">Voltar ao menu</a></p>
 
             <script>
                 const sendButton = document.getElementById('send-button');
@@ -80,7 +85,11 @@
                     const message = messageInput.value;
                     const destinatario = usuarioSelect.value;
 
-                    if (message.trim() && destinatario) {
+                    if (!message.trim()) {
+                        alert("A mensagem não pode estar em branco!");
+                    } else if (!destinatario) {
+                        alert("Por favor, selecione um usuário!");
+                    } else {
                         fetch('/enviarMensagem', {
                             method: 'POST',
                             headers: {

@@ -152,11 +152,11 @@ function cadastrarUsuarios(req, resp) {
     const nickname = req.body.nickname;
     const email = req.body.email;
     const senha = req.body.senha;
+    const confirmarSenha = req.body.confirmarSenha;
 
-    if(nome && dataNascimento && nickname && email && senha){
+    if (nome && dataNascimento && nickname && email && senha && senha === confirmarSenha) {
 
         const usuario = {nome, dataNascimento, nickname, email, senha};
-
         usuarios.push(usuario);
 
         resp.write(`
@@ -167,94 +167,95 @@ function cadastrarUsuarios(req, resp) {
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>Cadastro de Usuário</title>
                 <link rel="stylesheet" href="styles/styles.css">
-                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
-                integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
             </head>
             <body>
                 <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th scope="col">Nome</th>
-                                <th scope="col">Data de Nascimento</th>
-                                <th scope="col">Nickname</th>
-                                <th scope="col">Email</th>
-                                <th scope="col">Senha</th>
-                            </tr>
-                        </thead>
-                        <tbody>`);
+                    <thead>
+                        <tr>
+                            <th scope="col">Nome</th>
+                            <th scope="col">Data de Nascimento</th>
+                            <th scope="col">Nickname</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Senha</th>
+                        </tr>
+                    </thead>
+                    <tbody>`);
 
-                        for(var i = 0; i < usuarios.length; i++){
-                                resp.write(`<tr>
-                                                <td>${usuarios[i].nome}</td>
-                                                <td>${usuarios[i].dataNascimento}</td>
-                                                <td>${usuarios[i].nickname}</td>
-                                                <td>${usuarios[i].email}</td>
-                                                <td>${usuarios[i].senha}</td>
-                                            </tr>
-                                    `);
-                            }
-            resp.write(` </tbody>
-                            </table>
-                                <div class="container-actions">
-                                    <a class="btn btn-primary" href="/cadastrar" role="button">Cadastrar Outro Usuário</a>
-                                    <a class="btn btn-primary" href="/menu" role="button">Voltar ao Menu</a>
-                                </div>
-                            </div>
-                        </body>
-                        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-                    </html>
-                `);
-    }
-    else {
+        for (let i = 0; i < usuarios.length; i++) {
+            resp.write(`
+                <tr>
+                    <td>${usuarios[i].nome}</td>
+                    <td>${usuarios[i].dataNascimento}</td>
+                    <td>${usuarios[i].nickname}</td>
+                    <td>${usuarios[i].email}</td>
+                    <td>${usuarios[i].senha}</td>
+                </tr>
+            `);
+        }
+
         resp.write(`
-                <!DOCTYPE html>
-                <html lang="pt-br">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>Cadastro de Usuário</title>
-                    <link rel="stylesheet" href="styles/styles.css">
-                    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
-                    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-                </head>
-                <body>
-                    <h1>Cadastro de Usuário</h1>
-                    <form action="/cadastrarUsuario" method="POST" autocomplete="on">
-                        <div class="mb-3">
-                            <label for="nome" class="form-label">Nome</label>
-                            <input type="text" id="nome" name="nome" placeholder="Nome" required class="form-control" autocomplete="name">
-                            ${!nome ? '<span><p class="text-danger">Por favor, informe o nome do usuário.</p></span>' : ''}
-                        </div>
-                        <div class="mb-3">
-                            <label for="dataNascimento" class="form-label">Data de Nascimento</label>
-                            <input type="date" id="dataNascimento" name="dataNascimento" placeholder="Data de Nascimento" required class="form-control" autocomplete="bday">
-                            ${!dataNascimento ? '<span><p class="text-danger">Por favor, informe a data de nascimento do usuário.</p></span>' : ''}
-                        </div>
-                        <div class="mb-3">
-                            <label for="nickname" class="form-label">Nickname</label>
-                            <input type="text" id="nickname" name="nickname" placeholder="Nickname" required class="form-control" autocomplete="username">
-                            ${!nickname ? '<span><p class="text-danger">Por favor, informe o nickname do usuário.</p></span>' : ''}
-                        </div>
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" id="email" name="email" placeholder="Email" required class="form-control" autocomplete="email">
-                            ${!email ? '<span><p class="text-danger">Por favor, informe o email do usuário.</p></span>' : ''}
-                        </div>
-                        <div class="mb-3">
-                            <label for="senha" class="form-label">Senha</label>
-                            <input type="password" id="senha" name="senha" placeholder="Senha" required class="form-control" autocomplete="new-password">
-                            ${!senha ? '<span><p class="text-danger">Por favor, informe a senha do usuário.</p></span>' : ''}
-                        </div>
-                        <div class="mb-3">
-                            <label for="confirmarSenha" class="form-label">Confirmar Senha</label>
-                            <input type="password" id="confirmarSenha" name="confirmarSenha" placeholder="Confirmar Senha" required class="form-control" autocomplete="new-password">
-                            ${!confirmarSenha ? '<span><p class="text-danger">Por favor, confirme a senha do usuário.</p></span>' : ''}
-                        </div>
-                        <button type="submit" class="btn btn-primary">Cadastrar</button>
-                    </form>
-                    <a href="/menu">Voltar</a>
-                </body>
-                </html> `);
+                    </tbody>
+                </table>
+                <div class="container-actions">
+                    <a class="btn btn-primary" href="/cadastrarUsuario" role="button">Cadastrar Outro Usuário</a>
+                    <a class="btn btn-primary" href="/menu" role="button">Voltar ao Menu</a>
+                </div>
+            </body>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+        </html>
+        `);
+    } else {
+        
+        resp.write(`
+            <!DOCTYPE html>
+            <html lang="pt-br">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Cadastro de Usuário</title>
+                <link rel="stylesheet" href="styles/styles.css">
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+            </head>
+            <body>
+                <h1>Cadastro de Usuário</h1>
+                <form action="/cadastrarUsuario" method="POST" autocomplete="on">
+                    <div class="mb-3">
+                        <label for="nome" class="form-label">Nome</label>
+                        <input type="text" id="nome" name="nome" placeholder="Nome" class="form-control" value="${nome || ''}">
+                        ${!nome ? '<span><p class="text-danger">Por favor, informe o nome do usuário.</p></span>' : ''}
+                    </div>
+                    <div class="mb-3">
+                        <label for="dataNascimento" class="form-label">Data de Nascimento</label>
+                        <input type="date" id="dataNascimento" name="dataNascimento" placeholder="Data de Nascimento" class="form-control" value="${dataNascimento || ''}">
+                        ${!dataNascimento ? '<span><p class="text-danger">Por favor, informe a data de nascimento do usuário.</p></span>' : ''}
+                    </div>
+                    <div class="mb-3">
+                        <label for="nickname" class="form-label">Nickname</label>
+                        <input type="text" id="nickname" name="nickname" placeholder="Nickname" class="form-control" value="${nickname || ''}">
+                        ${!nickname ? '<span><p class="text-danger">Por favor, informe o nickname do usuário.</p></span>' : ''}
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" id="email" name="email" placeholder="Email"  class="form-control" value="${email || ''}">
+                        ${!email ? '<span><p class="text-danger">Por favor, informe o email do usuário.</p></span>' : ''}
+                    </div>
+                    <div class="mb-3">
+                        <label for="senha" class="form-label">Senha</label>
+                        <input type="password" id="senha" name="senha" placeholder="Senha"  class="form-control" value="${senha || ''}">
+                        ${!senha ? '<span><p class="text-danger">Por favor, informe a senha do usuário.</p></span>' : ''}
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirmarSenha" class="form-label">Confirmar Senha</label>
+                        <input type="password" id="confirmarSenha" name="confirmarSenha" placeholder="Confirmar Senha"  class="form-control" value="${confirmarSenha || ''}">
+                        ${senha !== confirmarSenha ? '<span><p class="text-danger">As senhas não coincidem.</p></span>' : ''}
+                    </div>
+                    <button type="submit" class="btn btn-primary">Cadastrar</button>
+                </form>
+                <a href="/menu">Voltar</a>
+            </body>
+            </html>
+        `);
     }
     resp.end();
 }
@@ -264,13 +265,12 @@ app.get('/cadastrarUsuario', verificarAutenticacao, cadastroUsuario);
 app.post('/cadastrarUsuario', verificarAutenticacao, cadastrarUsuarios);
 
 app.post('/enviarMensagem', verificarAutenticacao, (req, resp) => {
-    const { mensagem, destinatario } = req.body;
+    const { mensagem } = req.body;
     const usuarioRemetente = req.session.usuarioLogado;
 
-    if (mensagem && destinatario) {
+    if (mensagem && usuarioRemetente) {
         const novaMensagem = {
             usuario: usuarioRemetente.nickname,
-            destinatario: destinatario,
             mensagem: mensagem,
             data: new Date().toLocaleString(),
         };
@@ -279,7 +279,7 @@ app.post('/enviarMensagem', verificarAutenticacao, (req, resp) => {
 
         resp.json({ success: true });
     } else {
-        resp.send('Por favor, preencha todos os campos.');
+        resp.send('Por favor, preencha o campo de mensagem.');
     }
 });
 

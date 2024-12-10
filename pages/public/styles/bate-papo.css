@@ -3,44 +3,54 @@ body {
     background-color: #e9ecef; 
     margin: 0;
     padding: 0;
-    display: flex;
-    flex-direction: column;
     height: 100vh;
 }
 
+.container-fluid {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+h1 {
+    font-size: 2rem;
+    color: #333;
+}
+
 #chat-container {
-    flex: 1;
     padding: 10px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+    height: 400px;
+    margin-bottom: 20px;
 }
 
 .message {
     padding: 10px 15px;
     border-radius: 10px;
-    max-width: 60%;
     font-size: 1rem;
     line-height: 1.4;
     word-wrap: break-word;
+    max-width: 75%;
+    margin-bottom: 10px;
 }
 
 .message.user {
-    align-self: flex-end;
     background-color: #007bff;
     color: white;
+    align-self: flex-end;
 }
 
 .message.other {
-    align-self: flex-start;
     background-color: #f8f9fa;
     color: #333;
     border: 1px solid #ddd;
+    align-self: flex-start;
 }
 
 #message-input-container {
-    display: flex;
     position: sticky;
     bottom: 0;
     background-color: #fff;
@@ -67,4 +77,32 @@ body {
 
 #send-button:hover {
     background-color: #0056b3;
+}
+
+.form-group label {
+    font-weight: bold;
+}
+
+.form-control {
+    margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+    .message {
+        max-width: 90%;
+    }
+
+    #send-button {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 10px;
+    }
+
+    #message-input-container {
+        flex-direction: column;
+    }
+
+    #message-input {
+        margin-bottom: 10px;
+    }
 }
