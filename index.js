@@ -31,12 +31,12 @@ const mensagens = [];
 
 function verificarAutenticacao(req, resp, next) {
     if (req.session.usuarioLogado) {
-      next();
+        next();
     } else {
-      console.log("Usuário não autenticado.");
-      next(); 
+        console.log("Usuário não autenticado.");
+        resp.redirect('/login'); 
     }
-  }
+}
 
 app.get('/login', (req, resp) => {
     if (req.session.usuarioLogado) {
@@ -67,7 +67,7 @@ app.get('/logout', (req, resp) => {
 app.get('/menu', verificarAutenticacao, (req, resp) => {
     const dataHoraUltimoLogin = req.cookies['dataHoraUltimoLogin'];
     if (!dataHoraUltimoLogin) {
-        dataHoraUltimoLogin = '';
+        dataHoraUltimoLogin = 'Nenhuma informação de login anterior.';
     }
 });
 
