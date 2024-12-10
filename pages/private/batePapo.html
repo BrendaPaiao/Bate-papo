@@ -30,7 +30,7 @@
                 </div>
             </div>
         
-            <p class="mt-3 text-center"><a href="/menu">Voltar ao menu</a></p>
+            <a href="/menu" class="btn btn-primary" role="button">Voltar ao menu</a></p>
 
             <script>
                 const sendButton = document.getElementById('send-button');
@@ -38,9 +38,11 @@
                 const messagesDiv = document.getElementById('mensagens');
                 const usuarioSelect = document.getElementById('usuario-select');
                 
+                //Função para aparecer o nickname dos usuário no select do bate-papo
                 function carregarUsuarios() {
+                    //Fetch para fazer uma requisição ao servidor
                     fetch('/usuarios')
-                        .then(response => response.json())
+                        .then(response => response.json()) //Aqui é para converter a resposta para json
                         .then(data => {
                             if (data && Array.isArray(data)) {
                                 data.forEach(nickname => {
@@ -48,14 +50,15 @@
                                     option.value = nickname;
                                     option.textContent = nickname;
                                     usuarioSelect.appendChild(option);
-                                });
+                                });//Utilizando os dados que foram recebidos e convertidos
                             } else {
                                 console.log('Erro: dados de usuários não encontrados');
                             }
                         })
+                        //Coloquei caso ocorra um erro na requisição
                         .catch(error => console.log('Erro ao carregar usuários:', error));
                 }
-
+                
                 let usuarioLogado = '';
                 fetch('/usuarios')
                     .then(response => response.json())
@@ -73,8 +76,10 @@
                             messagesDiv.innerHTML = '';
                             data.forEach(msg => {
                                 const msgElement = document.createElement('div');
+                                //Adicionando classes as mensagens
                                 msgElement.classList.add('message');
                                 msgElement.classList.add(msg.usuario === 'seuNickname' ? 'user' : 'other');
+                                //O que aparecerá dentro das mensagem, apesar de não estar aparecendo o nome do usuário
                                 msgElement.textContent = `${msg.usuario} (${msg.data}): ${msg.mensagem}`;
                                 messagesDiv.appendChild(msgElement);
                             });
@@ -85,21 +90,25 @@
                     const message = messageInput.value;
                     const destinatario = usuarioSelect.value;
 
+                    //Fazendo a validacão
                     if (!message.trim()) {
                         alert("A mensagem não pode estar em branco!");
                     } else if (!destinatario) {
                         alert("Por favor, selecione um usuário!");
                     } else {
+                        //Definição de métodos, cabeçalhos e body da mensagem
                         fetch('/enviarMensagem', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/x-www-form-urlencoded',
                             },
+                            //Definindo o corpo
                             body: new URLSearchParams({ mensagem: message, destinatario: destinatario }),
                         })
                         .then(response => response.json())
                         .then(() => {
                             messageInput.value = '';
+                            //recarrega a página
                             location.reload();
                         });
                     }

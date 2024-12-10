@@ -82,18 +82,24 @@ app.get('/menu', verificarAutenticacao, (req, resp) => {
             integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
         </head>
         <body>
-            <h1>Bem-vindo ao Menu</h1>
-            <p>Você está logado como: <strong id="username"></strong></p>
-            <p><a href="/logout">Sair</a></p>
-            <p><a href="/cadastrarUsuario">Cadastro de Usuários</a></p>
-            <p><a href="/chat">Ir para o Chat</a></p>
+            <div class="container text-center mt-5">
+                <h1 class="mb-4">Bem-vindo ao Menu</h1>
+                <p>Você está logado como: <strong id="username"></strong></p>
+
+                <div class="d-grid gap-2 col-6 mx-auto mt-4">
+                    <a href="/cadastrarUsuario" class="btn btn-primary" role="button">Cadastro de Usuários</a>
+                    <a href="/chat" class="btn btn-primary" role="button">Ir para o Chat</a>
+                    <a href="/logout" class="btn btn-primary" role="button">Sair</a>
+                </div>
+
+                <p class="nav-link disable" tabindex="-1" aria-disabled="true">Seu último acesso foi realizado em ${dataHoraUltimoLogin}</p>
+            </div>
 
             <script>
                 // Definindo o nome do usuário no HTML usando JavaScript
                 const username = "${req.session.usuarioLogado}";
                 document.getElementById('username').textContent = username;
             </script>
-            <p class="nav-link disable" tabindex="-1" aria-disabled="true">Seu último acesso foi realizado em ${dataHoraUltimoLogin}</p>
         </body>
         </html>
     `);
@@ -140,7 +146,7 @@ function cadastroUsuario(req, resp) {
                 </div>
                 <button type="submit" class="btn btn-primary">Cadastrar</button>
             </form>
-            <a href="/menu">Voltar</a>
+            <a href="/menu" class="btn btn-primary" role="button">Voltar</a>
         </body>
         </html>`);
 }
@@ -269,6 +275,7 @@ app.post('/enviarMensagem', verificarAutenticacao, (req, resp) => {
     const usuarioRemetente = req.session.usuarioLogado;
 
     if (mensagem && usuarioRemetente) {
+        //conteúdo da mensagem que será enviada no bate-papo
         const novaMensagem = {
             usuario: usuarioRemetente.nickname,
             mensagem: mensagem,
@@ -276,7 +283,7 @@ app.post('/enviarMensagem', verificarAutenticacao, (req, resp) => {
         };
 
         mensagens.push(novaMensagem);
-
+        //Para informar que a ação foi executada com sucesso
         resp.json({ success: true });
     } else {
         resp.send('Por favor, preencha o campo de mensagem.');
@@ -297,6 +304,7 @@ app.get('/chat', verificarAutenticacao, (req, resp) => {
 });
 
 app.get('/mensagens', verificarAutenticacao, (req, resp) => {
+    //Enviando no formato json
     resp.json(mensagens);
 });
 
