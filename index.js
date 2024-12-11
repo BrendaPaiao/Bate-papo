@@ -20,6 +20,8 @@ app.use(cookieParser());
 app.use(express.urlencoded({extended: true}));
 
 app.use(express.static(path.join(process.cwd(), 'pages/public')));
+app.use(express.static(path.join(process.cwd(), 'pages/private')));
+
 
 const porta = 3000;
 const host = '0.0.0.0';
@@ -33,25 +35,30 @@ function verificarAutenticacao(req, resp, next) {
     if (req.session.usuarioLogado) {
         next();
     } else {
-        console.log("Usuário não autenticado.");
-        resp.redirect('/login'); 
+        resp.redirect('/login');
     }
 }
 
 app.get('/login', (req, resp) => {
     if (req.session.usuarioLogado) {
-        resp.redirect('/menu.html');
+        resp.redirect('/menu');
     } else {
-        resp.send(`...pagina de login aqui...`);
+        resp.redirect('login.html'); 
     }
 });
 
 app.post('/login', (req, resp) => {
     const { nome, senha } = req.body;
+
     if (admin.nome === nome && admin.senha === senha) {
         req.session.usuarioLogado = admin.nome;
-        resp.cookie('dataHoraUltimoLogin', new Date().toISOString(), { maxAge: 1000 * 60 * 30 });
-        resp.redirect('/menu.html');
+        
+        const dataHoraAtual = new Date().toISOString();
+        resp.cookie('dataHoraUltimoLogin', dataHoraAtual, { maxAge: 3600000, httpOnly: true });
+
+        console.log("Último login:", dataHoraAtual);
+
+        resp.redirect('/menu');
     } else {
         resp.send(`
             <p>Credenciais inválidas. <a href="/login">Tente novamente</a>.</p>
@@ -65,10 +72,44 @@ app.get('/logout', (req, resp) => {
 });
 
 app.get('/menu', verificarAutenticacao, (req, resp) => {
-    const dataHoraUltimoLogin = req.cookies['dataHoraUltimoLogin'];
+    let dataHoraUltimoLogin = req.cookies['dataHoraUltimoLogin'];
+
     if (!dataHoraUltimoLogin) {
-        dataHoraUltimoLogin = 'Nenhuma informação de login anterior.';
+        dataHoraUltimoLogin = 'Primeiro acesso';
     }
+    resp.send(`
+        <!DOCTYPE html>
+        <html lang="pt-br">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Menu</title>
+            <link rel="stylesheet" href="styles/styles.css">
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+            integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        </head>
+        <body>
+            <div class="container text-center mt-5">
+                <h1 class="mb-4">Bem-vindo ao Menu</h1>
+                <p>Você está logado como: <strong id="username"></strong></p>
+
+                <div class="d-grid gap-2 col-6 mx-auto mt-4">
+                    <a href="/cadastrarUsuario" class="btn btn-primary" role="button">Cadastro de Usuários</a>
+                    <a href="/chat" class="btn btn-primary" role="button">Ir para o Chat</a>
+                    <a href="/logout" class="btn btn-primary" role="button">Sair</a>
+                </div>
+
+                <p class="nav-link disable" tabindex="-1" aria-disabled="true">Seu último acesso foi realizado em ${dataHoraUltimoLogin}</p>
+            </div>
+
+            <script>
+                // Definindo o nome do usuário no HTML usando JavaScript
+                const username = "${req.session.usuarioLogado}";
+                document.getElementById('username').textContent = username;
+            </script>
+        </body>
+        </html>
+    `);
 });
 
 function cadastroUsuario(req, resp) {
@@ -241,7 +282,7 @@ app.post('/enviarMensagem', verificarAutenticacao, (req, resp) => {
     const usuarioRemetente = req.session.usuarioLogado;
 
     if (mensagem && usuarioRemetente) {
-        //Conteúdo da mensagem que será enviada no bate-papo
+        //conteúdo da mensagem que será enviada no bate-papo
         const novaMensagem = {
             usuario: usuarioRemetente.nickname,
             mensagem: mensagem,
